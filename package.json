@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/Team-PHP-SDC-Project/Project-SDC/issues"
   },
-  "homepage": "https://github.com/Team-PHP-SDC-Project/Project-SDC#readme"
+  "homepage": "https://github.com/Team-PHP-SDC-Project/Project-SDC#readme",
+  "dependencies": {
+    "body-parser": "^1.19.0"
+  }
 }
