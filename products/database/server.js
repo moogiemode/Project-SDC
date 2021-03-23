@@ -14,88 +14,61 @@ pool.on('error', (err, client) => {
 
 const basicQuery = (queryString, callback) => {
   console.log(queryString)
-  pool.connect()
-    .then(client => {
-      return client
-        .query(queryString)
-        .then(res => {
-          client.release()
-          console.log(res.rows)
-          return res.rows
-        })
-        .catch(err => {
-          client.release()
-          console.log(err.stack);
-        })
-    })
-    .then(result => callback(null, result))
+  pool.connect((err, client, release) => {
+    if (err) {
+      return console.error('Error acquiring client', err.stack);
+    }
+    client.query(queryString, (err, result) => {
+      release();
+      if (err) {
+        return console.error('Error executing query', err.stack);
+      }
+      callback(null, result.rows);
+    });
+  });
 }
 
 const getSelectedProduct = (productID, callback) => {
-
-  pool.connect((err, client, release) => {
-    if (err) {
-      return console.error('Error acquiring client', err.stack)
-    }
-    client.query(`SELECT * FROM products WHERE id = ${productID}`, (err, result) => {
-      if (err) {
-        return console.error('Error executing query', err.stack)
-      } else {
-
-        client.query(`SELECT feature, value FROM features WHERE product_id = ${productID}`, (err2, result2) => {
-          release()
-          if (err2) {
-            return console.error('Error executing query', err2.stack)
-          } else {
-            const endResult = { ...result.rows[0] }
-            endResult.features = result2.rows;
-            callback(null, endResult)
-          }
-        })
-      }
-    })
-  })
+  const queryString = `SELECT * FROM products WHERE id = ${productID}`;
+  basicQuery(queryString, callback);
 }
 
 const getProducts = (page, count, callback) => {
-
   const queryOffset = page > 1 ? (page - 1) * count : 0;
-  let queryString = `SELECT * FROM products ORDER BY id OFFSET ${queryOffset} LIMIT ${count}`;
+  const parameters = 'id, name, slogan, description, category, default_price'
 
-  if (count === '*') {
-    queryString = 'SELECT * FROM products ORDER BY id';
-  }
+  let queryString = `SELECT ${parameters} FROM products ORDER BY id OFFSET ${queryOffset} LIMIT ${count}`;
+  if (count === '*') {queryString = 'SELECT * FROM products ORDER BY id'};
   basicQuery(queryString, callback);
 }
 
-const getFeatures = (callback) => {
-  console.log('getFeatures')
-  const queryString = 'SELECT array_agg(features) FROM features WHERE product_id = 1'
+const getStyles = (productID, callback) => {
+  const styleString = `SELECT product_id::VARCHAR(5), JSON_AGG(json_build_object('style_id', id, 'name', name, 'original_price', original_price, 'sale_price', sale_price, 'default?', default_style, 'photos', photos, 'skus', skus) ORDER BY product_id) AS results FROM styles WHERE product_id = ${productID} GROUP BY product_id`
+  basicQuery(styleString, callback);
+}
 
+const getRelated = (productID, callback) => {
+  const queryString = `SELECT related_product_id FROM related where product_id = ${productID}`;
   basicQuery(queryString, callback);
 }
 
+// const testQuery = (callback) => {
+//   const queryString = `SELECT * FROM styles where product_id = 1`;
+//   const failString = `SELECT style_id, ARRAY_AGG(json_build_object('size', size, 'quantity', quantity) ORDER BY style_id) AS aggregated_skus
+//   FROM skus
+//   GROUP BY id`
+//   const testString = `SELECT style_id, JSON_AGG(json_build_object('quantity', quantity, 'size', size) ORDER BY style_id)::json AS skus
+//   FROM skus
+//   WHERE style_id = 1
+//   GROUP BY style_id`
+//   basicQuery(testString, callback);
+// }
 
-
-
-// pool
-//   .connect()
-//   .then(client => {
-//     return client
-//       .query('SELECT * FROM users WHERE id = $1', [1])
-//       .then(res => {
-//         client.release()
-//         console.log(res.rows[0])
-//       })
-//       .catch(err => {
-//         client.release()
-//         console.log(err.stack)
-//       })
-//   })
-
-module.exports ={
+module.exports = {
   pool,
   getSelectedProduct,
   getProducts,
-  getFeatures,
+  getStyles,
+  getRelated,
+  // testQuery,
 }
