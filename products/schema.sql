@@ -1,3 +1,9 @@
+/******AWS COMMANDS
+  curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+  sudo apt-get install -y nodejs
+  sudo apt-get install git
+*/
+
 -- psql -h localhost -d products -U me < schema.sql
 
 -- DROP DATABASE IF EXISTS products;
