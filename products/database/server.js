@@ -52,23 +52,10 @@ const getRelated = (productID, callback) => {
   basicQuery(queryString, callback);
 }
 
-// const testQuery = (callback) => {
-//   const queryString = `SELECT * FROM styles where product_id = 1`;
-//   const failString = `SELECT style_id, ARRAY_AGG(json_build_object('size', size, 'quantity', quantity) ORDER BY style_id) AS aggregated_skus
-//   FROM skus
-//   GROUP BY id`
-//   const testString = `SELECT style_id, JSON_AGG(json_build_object('quantity', quantity, 'size', size) ORDER BY style_id)::json AS skus
-//   FROM skus
-//   WHERE style_id = 1
-//   GROUP BY style_id`
-//   basicQuery(testString, callback);
-// }
-
 module.exports = {
   pool,
   getSelectedProduct,
   getProducts,
   getStyles,
   getRelated,
-  // testQuery,
 }

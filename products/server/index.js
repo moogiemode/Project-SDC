@@ -12,10 +12,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
 app.get('/', (request, response) => {
-  db.getOneUser((error, result) => {
-      response.send(result);
-  })
-
+  response.status(200).send('Request recieved. Welcome.')
 })
 
 app.get('/api/products', (request, response) => {
@@ -57,13 +54,6 @@ app.get('/api/products/:id/related', (request, response) => {
   })
 })
 
-// app.get('/api/test', (request,response) => {
-//   db.testQuery((error, result) => {
-//     console.log(result)
-//     response.send(result);
-//   })
-// })
-
 app.listen(port, () => {
-  console.log(`Listening on port: ${port}`)
+  console.log(`Listening...`)
 })
