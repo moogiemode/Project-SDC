@@ -1,8 +1,10 @@
 // require('newrelic');
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const db = require('../database/server.js');
+const loaderio = '/loaderio-554c34215080d1ca231f175eb4c1ad73.txt'
 
 const app  = express();
 
@@ -11,8 +13,23 @@ const port = 5000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
-app.get('/', (request, response) => {
-  response.status(200).send('Request recieved. Welcome.')
+app.get(loaderio, function(req, res){
+  var options = {
+      root: path.join(__dirname)
+  };
+
+  var fileName = 'loaderio.txt';
+  res.sendFile(fileName, options, function (err) {
+      if (err) {
+          next(err);
+      } else {
+          console.log('Sent:', fileName);
+      }
+  });
+});
+
+app.get(loaderio, (request, response) => {
+  response.status(200).sendFile('loaderiotxt.txt')
 })
 
 app.get('/api/products', (request, response) => {
