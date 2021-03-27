@@ -13,7 +13,6 @@ pool.on('error', (err, client) => {
 });
 
 const basicQuery = (queryString, callback) => {
-  console.log(queryString)
   pool.connect((err, client, release) => {
     if (err) {
       return console.error('Error acquiring client', err.stack);
